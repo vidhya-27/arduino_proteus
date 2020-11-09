@@ -1,0 +1,122 @@
+#include "DHT.h"                      
+#include <Wire.h>                      
+#include <LiquidCrystal_I2C.h>       
+#define DHTPIN 13
+#define DHTTYPE DHT11
+#define echoPin 2 
+#define trigPin 3 
+int swtch;
+
+LiquidCrystal_I2C lcd(0x3F,20,4);  
+const int ldrPin = A0;
+long duration; 
+int distance; 
+float liquid;
+DHT dht(DHTPIN, DHTTYPE);
+
+                    
+void setup() 
+{
+  lcd.init();   
+  lcd.backlight();  
+  dht.begin();
+  pinMode(trigPin, OUTPUT); // initialising pin 3 as output
+  pinMode(echoPin, INPUT); // initialising pin 2 as input
+  pinMode(12, INPUT);
+  lcd.setCursor(0,0);
+  lcd.print("Innovators");
+  lcd.setCursor(0,1);
+  lcd.print("Assignment 2");
+  lcd.setCursor(0,2);
+  lcd.print("Done By ");
+  lcd.setCursor(0,3);
+  lcd.print("Vidhya S R");
+  delay(2000);
+  lcd.clear();  
+}
+
+void loop()
+{
+
+  swtch = digitalRead(12);
+  int ldrStatus = analogRead(ldrPin);
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2); 
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  duration = pulseIn(echoPin, HIGH); 
+  distance = duration*0.034/2;
+  float t = dht.readTemperature();
+  float h = dht.readHumidity();
+
+  if (isnan(t)) 
+  {
+    lcd.setCursor(0,0);
+    lcd.print("Failed to read");
+    lcd.setCursor(0,1);
+    lcd.print("from DHT sensor!");
+    return;
+  }
+
+
+ if(swtch == LOW)
+  {
+    if(distance <= 15)
+
+  {
+   lcd.init();   
+   lcd.backlight();  
+   lcd.setCursor(0,0);
+   lcd.print("Distance = ");
+   lcd.print(distance);
+   lcd.print("cm");
+   lcd.setCursor(0,1);
+   lcd.print("Temperature = ");
+   lcd.print(t);
+   lcd.setCursor(0,2);
+   lcd.print("Humidity = ");
+   lcd.print(h);
+   lcd.setCursor(0,3);
+   lcd.print("LDR = ");
+   lcd.print(ldrStatus);
+   if(ldrStatus>100)
+   {
+    lcd.print("  ALERT!!!");
+   }
+  delay(2000);
+  lcd.clear();  
+  }
+  else
+  {
+
+   lcd.setCursor(0,0);
+   lcd.print("Distance = ");
+   lcd.print(distance);
+   lcd.setCursor(0,1);
+   lcd.print("Distance out");
+   lcd.setCursor(0,2);
+   lcd.print("of range");  
+   delay(2000);
+   lcd.clear();
+  } 
+  
+  }
+  
+  else
+  {
+
+   lcd.setCursor(0,0);
+   lcd.print("Temperature: ");
+   int i;
+   float t = dht.readTemperature();
+   for(i==1;i<=5;i++)
+   {
+   lcd.print(" ");
+   lcd.print(t);
+   delay(3000);
+  }
+  
+  }
+  lcd.clear();
+}
